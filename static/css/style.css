@@ -88,3 +88,12 @@ button:hover{
 #chk:checked ~ .signup label{
 	transform: scale(.6);
 }
+a {
+	position: center;
+	top: 2000px;
+
+}
+.add_reform {
+	width: 300px;
+	transform: translate(-325px, 300px);
+}

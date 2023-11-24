@@ -78,13 +78,23 @@ class Boss(models.Model):
         db_table = "Boss"
 
 
+class Ministry(models.Model):
+    name_ministry = models.CharField(max_length=100, verbose_name="Название министерства",
+                                     help_text="Введите название министерства", null=False, blank=False,
+                                     primary_key=True)
+
+    boss = models.ForeignKey(Boss, on_delete=models.CASCADE, verbose_name="Начальник",
+                             help_text="Выберите начальника", null=False, blank=False)
+    direction = models.ManyToManyField(Direction)
+
+
 class Reform(models.Model):
     number = IntegerRangeField(min_value=1, verbose_name="Номер реформы", default=1,
                                help_text="Введите номер реформы", null=False, blank=False)
     minister = models.ForeignKey(Minister, on_delete=models.CASCADE, verbose_name="Министр",
                                  help_text="Выберите министра", null=False, blank=False)
-    boss = models.ForeignKey(Boss, on_delete=models.CASCADE, verbose_name="Имя начальника",
-                             help_text="Выберите уполномоченного начальника", null=False, blank=False)
+    ministry = models.ForeignKey(Ministry, on_delete=models.CASCADE, verbose_name="Название министерства",
+                                 help_text="Выберите название министерства", null=True, blank=True, default="Иностранных дел", db_column="ministry")
     budget = IntegerRangeField(min_value=0, verbose_name="Бюджет",
                                help_text="Введите сумму бюджета", null=False, blank=False)
     deadline = models.DateField(verbose_name="Сроки",

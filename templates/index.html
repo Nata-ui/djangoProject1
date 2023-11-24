@@ -13,23 +13,28 @@
 		<input type="checkbox" id="chk" aria-hidden="true">
 
 			<div class="signup">
-				<form>
-					<label for="chk" aria-hidden="true">Регистрация</label>
-					<input type="text" name="txt" placeholder="Имя" required="">
-					<input type="email" name="email" placeholder="Email" required="">
-					<input type="password" name="pswd" placeholder="Пароль" required="">
-					<button>Зарегистрироваться</button>
-				</form>
+				<form method="post">
+                    {% csrf_token %}
+                        <label for="chk" aria-hidden="true">Регистрация</label>
+                        <input type="text" name="create_user_name" placeholder="Имя" required="">
+                        <input type="email" name="create_email" placeholder="Email" required="">
+                        <input type="password" name="create_password" placeholder="Пароль" required="">
+                        <button>Зарегистрироваться</button>
+                </form>
 			</div>
 
 			<div class="login">
-				<form>
-					<label for="chk" aria-hidden="true">Авторизация</label>
-					<input type="email" name="email" placeholder="Email" required="">
-					<input type="password" name="pswd" placeholder="Пароль" required="">
-					<button>Войти</button>
-				</form>
+                <form method="post">
+                    {% csrf_token %}
+                        <label for="chk" aria-hidden="true">Авторизация</label>
+                        <input type="email" name="email" placeholder="Email" required="">
+                        <input type="password" name="password" placeholder="Пароль" required="">
+                        <button>Войти</button>
+                </form>
 			</div>
 	</div>
+    <div class="add_reform">
+        <a href="{% url 'add_reform' %}"><button class="btn btn-info"><i class="bi bi-plus-circle-fill"></i> Добавить реформу</button></a>
+    </div>
 </body>
 </html>

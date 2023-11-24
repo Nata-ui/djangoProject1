@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Информация о министре</title>
+    {% extends "base.html" %}
     {% load django_bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
@@ -11,6 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
 <body>
+{% block content %}
 <div class="card">
   <div class="ds-top"></div>
   <div class="avatar-holder">
@@ -60,5 +62,6 @@
           </tbody>
         </table>
 </div>
+{% endblock %}
 </body>
 </html>

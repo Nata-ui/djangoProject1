@@ -1,0 +1,26 @@
+body {
+    background: #430d69;
+}
+.features {
+    background: #6d44b8;
+    color: #fff;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    width: 1000px;
+    height: 500px;
+}
+.features h1 {
+    color: #e0dede;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+form {
+    padding: 1em;
+    margin-bottom: 20px;
+}
+button {
+    width: 200px;
+    height: 40px;
+    margin-top: 10px;
+}
