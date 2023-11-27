@@ -19,6 +19,7 @@ from django.contrib.auth.views import LogoutView
 from django.urls import path, reverse_lazy
 from test_django import views
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('info/', views.show_info),
@@ -27,4 +28,9 @@ urlpatterns = [
     path('success/', views.success, name='success'),
     path('logout/', LogoutView.as_view(next_page=reverse_lazy('home')), name='logout'),
     path('user_logout', views.logout_user, name='logout_user'),
+    path('bossView/<str:name_ministry>/', views.show_direction_ofMinistry, name='minister_ofMinistry'),
+    path('bossView/<str:name_ministry>/<str:name_direction>/', views.show_ministerFromDirection, name='minister_fromDirection'),
+    path('bossView/<str:name_ministry>/<str:name_direction>/<int:id_user>/', views.show_minister, name='show_minister')
+
+
 ]

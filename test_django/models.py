@@ -49,8 +49,8 @@ class Minister(models.Model):
                                  help_text="Введите имя", null=False, blank=False)
     date_birth = models.DateField(verbose_name="Дата рождения",
                                   help_text="Введите дату рождения", null=False, blank=False)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, verbose_name="id отдела",
-                                   help_text="Введите отдел", null=False, blank=False)
+    direction = models.ForeignKey(Direction, on_delete=models.CASCADE, verbose_name="Название направления",
+                                  help_text="Выберите направление", null=True, blank=True)
     id_user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="id пользователя",
                                 help_text="выберите id пользователя", null=True, blank=True)
 
@@ -66,8 +66,8 @@ class Boss(models.Model):
                                   help_text="Введите имя", null=False, blank=False)
     last_name = models.CharField(max_length=100, verbose_name="Фамилия",
                                  help_text="Введите фамилию", null=False, blank=False)
-    direction = models.ForeignKey(Direction, on_delete=models.CASCADE, verbose_name="Название направления",
-                                  help_text="Выберите направление", null=False, blank=False)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, verbose_name="id отдела",
+                                   help_text="Введите отдел", null=True, blank=True)
     id_user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="id пользователя",
                                 help_text="выберите id пользователя", null=True, blank=True)
 
