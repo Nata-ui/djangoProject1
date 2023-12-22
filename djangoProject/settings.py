@@ -39,8 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'test_django',
     'django_bootstrap5',
+    'crispy_forms',
+    'crispy_bootstrap5',
+    'bootstrap_datepicker_plus',
 ]
-
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

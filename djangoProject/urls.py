@@ -22,15 +22,24 @@ from test_django import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('info/', views.show_info),
-    path('', views.index),
-    path('add_reform/', views.add_reform, name='add_reform'),
-    path('success/', views.success, name='success'),
+    path('info/', views.show_info, name='info'),
+
+# регистрация
+    path('', views.show_index, name="home"),
+
+    path('show_minister/<str:direction>/<int:id_user>/addreform/', views.add_reform, name='add_reform'),
+    path('show_minister/<str:direction>/<int:id_user>/<int:number_reform>/deletereform/', views.delete_reform, name='delete_reform'),
+
     path('logout/', LogoutView.as_view(next_page=reverse_lazy('home')), name='logout'),
     path('user_logout', views.logout_user, name='logout_user'),
+    path('register_minister/', views.register_minister, name='register_minister'),
+
     path('bossView/<str:name_ministry>/', views.show_direction_ofMinistry, name='minister_ofMinistry'),
-    path('bossView/<str:name_ministry>/<str:name_direction>/', views.show_ministerFromDirection, name='minister_fromDirection'),
-    path('bossView/<str:name_ministry>/<str:name_direction>/<int:id_user>/', views.show_minister, name='show_minister')
+    path('bossView/<str:name_ministry>/<str:direction>/', views.show_ministerFromDirection, name='minister_fromDirection'),
+    path('bossView/<str:direction>/<int:id_user>/', views.show_minister, name='show_minister'),
+    path('bossMinisterView/<str:direction>/<int:id_minister>/', views.minister_info, name='minister_info'),
 
-
+    path('ajax/validate_username', views.validate_username, name='validate_username'),
+    path('ajax/validate_email', views.validate_email, name='validate_email'),
+    path('ajax/check_reform_number/<int:id_minister>/', views.check_numberReform, name='check_reform_number'),
 ]

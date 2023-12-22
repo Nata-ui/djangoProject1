@@ -24,11 +24,12 @@ body {
   bottom: 0;
   left: 0;
   width: 650px;
-  height: 600px;
+  height: 670px;
   border-radius: 10px;
   box-shadow: 0 10px 25px 5px rgba(255, 192, 203,0.2);
   background: #dc14d9;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
   .ds-top {
     position: absolute;
     margin: auto;
@@ -67,7 +68,7 @@ body {
     color: white;
     position: absolute;
     margin: auto;
-    top: -180px;
+    top: -230px;
     right: 0;
     bottom: 0;
     left: 0;
@@ -133,10 +134,11 @@ body {
       animation-fill-mode: forwards;
       h6 {
         text-transform: uppercase;
-        color: crimson;
+        color: midnightblue;
+        animation: mvBottom 1.5s;
       }
       p {
-        font-size: 12px;
+        font-size: 16px;
       }
     }
     .ds {
@@ -151,17 +153,20 @@ body {
   .ds-skill {
     position: absolute;
     margin: 0 10px 0 10px;
+    top: 530px;
     bottom: 10px;
     right: 0;
     left: 0;
-    width: 630px;
+    width: 610px;
     height: 100px;
     animation: mvBottom 1.5s;
+
+
     h6 {
       margin-bottom: 5px;
       font-weight: 700;
       text-transform: uppercase;
-      color: crimson;
+      color: white;
     }
     .skill {
       h6 {
@@ -172,7 +177,7 @@ body {
         color: white;
       }
       .fab {
-        color: crimson;
+        color: white;
         font-size: 14px;
       }
       .bar {
@@ -257,4 +262,27 @@ body {
 .following {
   color: white;
   background: crimson;
+}
+
+.direction_description
+{
+  position: absolute;
+  margin: 0 20px 0 180px;
+  top: 380px;
+  text-align: center;
+  width: 300px;
+  animation: fadeIn 2s ease-in;
+  color: purple;
+}
+.empty {
+  height: 20px;
+  position: absolute;
+  margin: 0 20px 0 20px;
+  bottom: 20px;
+  top: 675px;
+  overflow: hidden;
+}
+
+.tb {
+   animation: fadeIn 2s ease-in;
 }

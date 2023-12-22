@@ -4,8 +4,9 @@ from pathlib import Path
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from test_django.forms import ReformForm
+from test_django.forms import ReformForm, MinisterForm
 from test_django.models import Minister, Reform, Boss, Ministry, Direction
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,13 +32,12 @@ def show_info(request):
             reforms = list(reforms)
             return render(request, 'ministerInfo.html',
                           {"minister": minister,
-                           "link_img": hashlib.md5(user.email.encode('utf-8')).hexdigest(),
                            "reforms": reforms})
     else:
         return redirect("/")
 
 
-def show_minister(request, name_ministry, name_direction, id_user):
+def show_minister(request, direction, id_user):
     user = request.user
     if user.is_authenticated and user.groups.filter(name="Начальники").exists():
         minister = Minister.objects.get(id_user_id=id_user)
@@ -47,36 +47,83 @@ def show_minister(request, name_ministry, name_direction, id_user):
                       {"minister": minister,
                        "link_img": hashlib.md5(
                            User.objects.get(id=minister.id_user_id).email.encode('utf-8')).hexdigest(),
-                       "reforms": reforms})
+                       "reforms": reforms,
+                       "direction": direction,
+                       })
     else:
         return render(request, 'notAccess.html')
 
 
-def add_reform(request):
-    error = ''
-    if request.method == 'POST':
-        form = ReformForm(request.POST)
+def minister_info(request, direction, id_minister):
+    return render(request, 'ministerInfo.html',
+                  {"minister": Minister.objects.get(id=id_minister),
+                   "reforms": Reform.objects.filter(minister_id=id_minister),
+                   "direction": direction
+                   })
+
+
+def register_minister(request):
+    if request.method == 'GET':
+        form = MinisterForm()
+        print("1111")
+        return render(request, 'registerMinister.html', {'form': form})
+    else:
+        print("2222")
+        form = MinisterForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('reforms_home')
+            print("3333")
+            Minister.objects.filter(id_user_id=request.user).update(first_name=form.cleaned_data['name'],
+                                                                    last_name=form.cleaned_data['surname'],
+                                                                    date_birth=form.cleaned_data['date_birth'],
+                                                                    direction=form.cleaned_data['direction'])
+            print("4444")
+            return redirect('/info')
         else:
-            error = "Форма заполнена некорректно"
-
-    form = ReformForm()
-
-    data = {
-        'form': form,
-        'error': error
-    }
-
-    return render(request, 'add_reform.html', data)
+            print("asdfasdfasdf")
 
 
-def success(request):
-    return render(request, 'success.html')
+def add_reform(request, direction, id_user):
+    if request.method == "GET":
+        reformForm = ReformForm()
+        return render(request, "add_reform.html",
+                      {"form": reformForm, "id_minister": Minister.objects.get(id_user=id_user).id})
+    else:
+        reformform = ReformForm(request.POST)
+
+        if reformform.is_valid():
+            obj = Reform()
+            obj.minister = Minister.objects.get(id_user_id=id_user)
+            obj.budget = reformform.cleaned_data['budget']
+            obj.number = reformform.cleaned_data['number']
+            obj.deadline = reformform.cleaned_data['deadline']
+            obj.save()
+            if User.objects.get(id=id_user).groups.filter(name="Начальники").exists():
+                return redirect(f"/bossView/{direction}/{id_user}")
+            else:
+                return render(request, 'ministerInfo.html', {'minister': Minister.objects.get(id_user_id=id_user),
+                                                             'reforms': Reform.objects.filter(
+                                                                 minister_id=Minister.objects.get(
+                                                                     id_user_id=id_user).id),
+                                                             'direction': Minister.objects.get(
+                                                                 id_user_id=id_user).direction_id})
+        else:
+            return redirect("/")
 
 
-def index(request):
+def delete_reform(request, direction, id_user, number_reform):
+    minister_id = Minister.objects.get(id_user_id=id_user).id
+    reform = Reform.objects.filter(number=number_reform, minister_id=minister_id).delete()
+    if User.objects.get(id=id_user).groups.filter(name="Начальники").exists():
+        return redirect(f"/bossView/{direction}/{id_user}")
+    else:
+        return render(request, 'ministerInfo.html', {'minister': Minister.objects.get(id_user_id=id_user),
+                                                     'reforms': Reform.objects.filter(
+                                                         minister_id=Minister.objects.get(
+                                                             id_user_id=id_user).id),
+                                                     'direction': direction})
+
+
+def show_index(request):
     if request.method == "GET":
         cur_user = request.user
         if cur_user.is_authenticated:
@@ -94,17 +141,22 @@ def index(request):
 
             try:
                 login(request, user)
-                return redirect("/info")
+                return render(request, 'ministerInfo.html', {'minister': Minister.objects.get(id_user_id=user.id),
+                                                             'reforms': Reform.objects.filter(
+                                                                 minister_id=Minister.objects.get(id_user_id=user.id).id),
+                                                             'direction': Minister.objects.get(id_user_id=user.id).direction_name})
             except Exception:
                 print("Not correct email or pass")
                 return redirect("/")
         else:
+            print("kbg")
             email = request.POST.get("create_email")
             username = request.POST.get("create_user_name")
             password = request.POST.get("create_password")
             user = User.objects.create_user(email=email, username=username, password=password)
             login(request, user)
-            return redirect("/info")
+            Minister.objects.create(id_user_id=user.id, date_birth="2011-11-11")
+            return redirect("/register_minister")
 
 
 def show_direction_ofMinistry(request, name_ministry):
@@ -113,22 +165,74 @@ def show_direction_ofMinistry(request, name_ministry):
     return render(request, 'bossViewDirection.html', {"direction": direction, "name_ministry": name_ministry})
 
 
-def show_ministerFromDirection(request, name_ministry, name_direction):
-    ministers = Minister.objects.filter(direction=Direction.objects.get(name=name_direction))
+def show_ministerFromDirection(request, direction, name_ministry):
+    ministers = Minister.objects.filter(direction=direction)
     ministerAllReforms = []
     ministerLastReforms = []
 
     for minister in ministers:
-        reform_budgets = minister.reform_set.values_list('budget', flat=True)
-        sumBudget = sum(reform_budgets)
-        lastReforms = max(minister.reform_set.values_list('deadline', flat=True), default=None)
-        ministerAllReforms.append(sumBudget)
-        ministerLastReforms.append(lastReforms)
+        ministerReforms = Reform.objects.filter(minister_id=minister.id)
+        if ministerReforms:
+            reform_budgets = minister.reform_set.values_list('budget', flat=True)
+            sumBudget = sum(reform_budgets)
+            lastReforms = max(minister.reform_set.values_list('deadline', flat=True), default=None)
+            ministerAllReforms.append(sumBudget)
+            ministerLastReforms.append(lastReforms)
+        else:
+            ministerAllReforms.append(0)
+            ministerLastReforms.append(0)
 
-    ministers_data = zip(ministers, ministerAllReforms, ministerLastReforms)
+    ministers = zip(ministers, ministerAllReforms, ministerLastReforms)
     return render(request, 'bossViewMinister.html', {
-        "ministers": ministers_data,
-        "name_ministry": name_ministry,
-        "name_direction": name_direction
+        "ministers": ministers,
+        "direction": direction
     })
+#не сегодня
+# def show_ministerFromDirection(request, name_direction, name_ministry):
+#     ministers = Minister.objects.filter(direction=name_direction)
+#     ministerAllReforms = []
+#     ministerLastReforms = []
+#
+#     for minister in ministers:
+#         ministerReforms = Reform.objects.filter(minister_id=minister.id)
+#         if ministerReforms:
+#             reform_budgets = minister.reform_set.values_list('budget', flat=True)
+#             sumBudget = sum(reform_budgets)
+#             lastReforms = max(minister.reform_set.values_list('deadline', flat=True), default=None)
+#             ministerAllReforms.append(sumBudget)
+#             ministerLastReforms.append(lastReforms)
+#         else:
+#             ministerAllReforms.append(0)
+#             ministerLastReforms.append(0)
+#
+#     ministers_data = zip(ministers, ministerAllReforms, ministerLastReforms)
+#     return render(request, 'bossViewMinister.html', {
+#         "ministers": ministers_data,
+#         "name_direction": name_direction
+#     })
+#
 
+def validate_username(request):
+    username = request.GET.get('create_user_name', None)
+    response = {
+        'taken': User.objects.filter(username__exact=username).exists()
+    }
+    return JsonResponse(response)
+
+
+def validate_email(request):
+    email = request.GET.get('create_email', None)
+    response = {
+        'taken': User.objects.filter(email__exact=email).exists()
+    }
+    return JsonResponse(response)
+
+
+def check_numberReform(request, id_minister):
+    number = int(request.GET.get('number', None))
+    if (number == ""):
+        number = 0
+    response = {
+        'exist': Reform.objects.filter(number=number, minister_id=id_minister).exists()
+    }
+    return JsonResponse(response)

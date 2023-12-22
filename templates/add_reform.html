@@ -1,29 +1,68 @@
-<!doctype html>
-<html lang="ru">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/reform_style.css' %}">
-    <title>Добавить реформу</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <title>Title</title>
 </head>
-<body style="background: #430d69">
-    <div class="features">
-        <h1>Форма для добавления реформы</h1>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.number }}<br><br>
-            {{ form.minister }}
-            {{ form.leader }}<br><br>
-            {{ form.budget }}<br><br>
-            {{ form.deadline }}<br>
-            <span>{{ error }}</span>
-            <a href="{% url 'success' %}"><button type="button" class="btn btn-warning">Отправить реформу</button></a>
-        </form>
+<body style="background: #BC8F8F">
+<script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous"></script>
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load  crispy_forms_tags %}
+{% block content %}
+    {{ form.media }}
+<form method='post' class="mx-auto" style = "width: 900px">
+<h1 class="display-2 text-light text-center">Добавить реформу</h1>
+{% csrf_token %}
+    <div class="row g-3">
+        <div class="col">
+            {{ form.number|as_crispy_field }}
     </div>
+        <div class="col">
+            {{ form.budget|as_crispy_field }}
+    </div>
+    </div>
+    {{ form.deadline|as_crispy_field }}
+    <div class="text-center">
+        <button type="submit" id="reform_button" class="btn btn-success">Добавить реформу</button>
+    </div>
+</form>
+     {% block javascript %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function (){
+        $('#id_number').keyup(function (){
+            $.ajax(
+                {
+                    data: $(this).serialize(),
+                    url: "{% url 'check_reform_number'  id_minister %}",
+                    success:
+                    function (response){
+                       if ($('#numberError').length == 0)
+                           $('#id_number').after('<div class="invalid-feedback d-block" id="numberError"></div>');
+
+                        if (response.exist == true) {
+                            $('#id_number').removeClass('is-valid').addClass('is-invalid');
+                            $('#numberError').removeClass('valid-feedback').addClass('invalid-feedback').text("Реформа с введенным  номером уже существует");
+                            $('#reform_button').prop('disabled', true);
+                        } else {
+                            $('#id_number').removeClass('is-invalid').addClass('is-valid');
+                            $('#numberError').removeClass('invalid-feedback').addClass('valid-feedback').text("Реформу можно создать");
+                            $('#reform_button').prop('disabled', false);
+                        }
+                    },
+                    error: function (response){
+                        console.log(response.responseJSON.errors);
+                    }
+                });
+            return false;
+        });
+    });
+</script>
+{% endblock javascript %}
+{% endblock %}
 </body>
 </html>
