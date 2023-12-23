@@ -65,21 +65,16 @@ def minister_info(request, direction, id_minister):
 def register_minister(request):
     if request.method == 'GET':
         form = MinisterForm()
-        print("1111")
         return render(request, 'registerMinister.html', {'form': form})
     else:
-        print("2222")
         form = MinisterForm(request.POST)
         if form.is_valid():
-            print("3333")
             Minister.objects.filter(id_user_id=request.user).update(first_name=form.cleaned_data['name'],
                                                                     last_name=form.cleaned_data['surname'],
                                                                     date_birth=form.cleaned_data['date_birth'],
                                                                     direction=form.cleaned_data['direction'])
-            print("4444")
+
             return redirect('/info')
-        else:
-            print("asdfasdfasdf")
 
 
 def add_reform(request, direction, id_user):
@@ -187,30 +182,6 @@ def show_ministerFromDirection(request, direction, name_ministry):
         "ministers": ministers,
         "direction": direction
     })
-#не сегодня
-# def show_ministerFromDirection(request, name_direction, name_ministry):
-#     ministers = Minister.objects.filter(direction=name_direction)
-#     ministerAllReforms = []
-#     ministerLastReforms = []
-#
-#     for minister in ministers:
-#         ministerReforms = Reform.objects.filter(minister_id=minister.id)
-#         if ministerReforms:
-#             reform_budgets = minister.reform_set.values_list('budget', flat=True)
-#             sumBudget = sum(reform_budgets)
-#             lastReforms = max(minister.reform_set.values_list('deadline', flat=True), default=None)
-#             ministerAllReforms.append(sumBudget)
-#             ministerLastReforms.append(lastReforms)
-#         else:
-#             ministerAllReforms.append(0)
-#             ministerLastReforms.append(0)
-#
-#     ministers_data = zip(ministers, ministerAllReforms, ministerLastReforms)
-#     return render(request, 'bossViewMinister.html', {
-#         "ministers": ministers_data,
-#         "name_direction": name_direction
-#     })
-#
 
 def validate_username(request):
     username = request.GET.get('create_user_name', None)
